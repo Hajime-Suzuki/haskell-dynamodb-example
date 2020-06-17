@@ -1,0 +1,26 @@
+[
+  {
+    "PK": "order_1",
+    "SK": "order",
+    "userId": "1234",
+    "status": "pending"
+  },
+  {
+    "PK": "order_2",
+    "SK": "order",
+    "userId": "1234",
+    "status": "paid"
+  },
+  {
+    "PK": "order_3",
+    "SK": "order",
+    "userId": "abcd",
+    "status": "delivered"
+  },
+  {
+    "PK": "order_4",
+    "SK": "order",
+    "userId": "efgh",
+    "status": "processed"
+  }
+]

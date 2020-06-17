@@ -1,0 +1,52 @@
+service: haskell-dynamodb-example
+
+resources: ${file(./serverless.resources.yml)}
+
+provider:
+  name: aws
+  runtime: haskell
+  region: eu-central-1
+  stage: dev
+  profile: ${opt:profile, 'opc-sandbox'}
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - "dynamodb:Query"
+        - "dynamodb:GetItem"
+        - "dynamodb:PutItem"
+        - "dynamodb:UpdateItem"
+        - "dynamodb:DeleteItem"
+      Resource: "arn:aws:dynamodb:#{AWS::Region}:#{AWS::AccountId}:*"
+
+functions:
+  test:
+    handler: haskell-dynamodb-example.haskell-dynamodb-example-exe
+    # Here, mypackage is the Haskell package name and myfunc is the executable
+    # name as defined in the Cabal file. The handler field may be prefixed
+    # with a path of the form `dir1/.../dirn`, relative to `serverless.yml`,
+    # which points to the location where the Haskell package `mypackage` is
+    # defined. This prefix is not needed when the Stack project is defined at
+    # the same level as `serverless.yml`.
+
+custom:
+  serverless-offline:
+    port: 4000
+
+  dynamodb:
+    stages:
+      - dev
+    start:
+      port: 8000
+      migrate: true
+      seed: true
+      inMemory: true
+    seed:
+      dev:
+        sources:
+          - table: haskell-dynamodb-example
+            sources: [".seeds/orders.json"]
+
+plugins:
+  - serverless-haskell
+  - serverless-offline
+  - serverless-dynamodb-local

@@ -1,0 +1,1 @@
+ghcid -c='stack repl --main-is haskell-dynamodb-example:exe:haskell-dynamodb-example-exe'  -T=main
