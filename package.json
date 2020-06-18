@@ -7,7 +7,7 @@
     "test": "test"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "dev": "ghcid -c='stack repl --main-is haskell-dynamodb-example:exe:haskell-dynamodb-example-exe'  -T=main"
   },
   "author": "",
   "license": "ISC",

@@ -27,6 +27,14 @@ dependencies:
   - amazonka
   - amazonka-dynamodb
   - serverless-haskell
+  - text
+  - classy-prelude
+  - casing
+  - exceptions
+
+default-extensions:
+  - OverloadedStrings
+  - NoImplicitPrelude
 
 library:
   source-dirs: src
@@ -34,7 +42,7 @@ library:
 executables:
   haskell-dynamodb-example-exe:
     main: Main.hs
-    source-dirs: app
+    source-dirs: app/create-order
     ghc-options:
       - -threaded
       - -rtsopts
