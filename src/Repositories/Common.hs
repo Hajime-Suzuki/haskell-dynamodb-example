@@ -9,7 +9,7 @@ import           Network.AWS.DynamoDB
 dbEnv :: (Applicative m, MonadIO m, MonadCatch m) => m Env
 dbEnv =
   let dynamo = setEndpoint False "localhost" 8000 dynamoDB
-  in  newEnv (FromFile "opc-sandbox" "/Users/hajime/.aws/credentials")
+  in  newEnv (FromFile "dynamodb-example" ".env.aws-example")
         <&> configure dynamo
         <&> envRegion
         .~  Frankfurt
