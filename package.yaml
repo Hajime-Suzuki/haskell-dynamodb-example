@@ -32,6 +32,8 @@ dependencies:
   - casing
   - exceptions
   - conduit
+  - either
+  - email-validate
 
 default-extensions:
   - OverloadedStrings
