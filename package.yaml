@@ -37,6 +37,7 @@ dependencies:
   - transformers
   - mtl
   - aeson-pretty
+  - resourcet
 
 default-extensions:
   - OverloadedStrings

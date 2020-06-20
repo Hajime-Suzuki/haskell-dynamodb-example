@@ -1,4 +1,5 @@
 {-# LANGUAGE FlexibleContexts #-}
+{-# LANGUAGE ConstraintKinds #-}
 
 module Repositories.Order where
 
@@ -16,15 +17,17 @@ import           Control.Monad.Except
 import           Network.AWS.DynamoDB.PutItem
 import           Network.AWS.DynamoDB
 import           Domain.Order
+import           Control.Monad.Trans.Resource
 
-saveOrder
-  :: (MonadReader Config m, MonadUnliftIO m, MonadCatch m) => Order -> m ()
+
+saveOrder :: Repository m => Order -> m ()
 saveOrder order = do
-  config <- ask
-  res    <- runResourceT . runAWST (config ^. configEnv) $ send req
+  res <- handleReq =<< req
   pPrint $ res ^. pirsAttributes
  where
-  req  = putItem "haskell-dynamodb-example" & piItem .~ item
+  req = do
+    tableName <- asks (^. configTableName)
+    return $ putItem tableName & piItem .~ item
   item = mapFromList
     [ ("PK"     , attrS . Just $ order ^. orderId)
     , ("SK"     , attrS $ Just "order")
@@ -35,3 +38,4 @@ saveOrder order = do
     ]
 
 attrS v = attributeValue & avS .~ v
+

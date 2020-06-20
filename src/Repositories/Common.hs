@@ -1,9 +1,11 @@
+{-# LANGUAGE FlexibleContexts #-}
+
 module Repositories.Common where
 import           ClassyPrelude
 import           Control.Lens
 import           Control.Monad.Catch
 import           Control.Monad.Trans.AWS
-import           Network.AWS
+import           Network.AWS             hiding ( send )
 import           Network.AWS.DynamoDB
 import           Types
 
@@ -15,7 +17,8 @@ dbEnv =
         <&> envRegion
         .~  Frankfurt
 
-handleReq :: AWS a -> Repository a
+
+handleReq :: (Repository m, AWSRequest a) => a -> m (Rs a)
 handleReq a = do
-  config <- ask
-  runResourceT . runAWS (config ^. configEnv) $ a
+  env <- asks (^. configEnv)
+  runResourceT . runAWST env $ send a

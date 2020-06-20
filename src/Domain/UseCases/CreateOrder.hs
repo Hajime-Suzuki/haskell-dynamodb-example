@@ -26,11 +26,8 @@ createOrderHandler = do
   v      <- runUseCase2 config (createOrder2 "123456" "test@test.com")
   pPrint $ encodePretty v
 
-createOrder2
-  :: (MonadIO m, MonadReader Config m, MonadCatch m, MonadUnliftIO m)
-  => Text
-  -> Text
-  -> m Order
+
+createOrder2 :: Repository m => Text -> Text -> m Order
 createOrder2 userId email = do
   let vOrder = mkOrder userId email
   case vOrder of
