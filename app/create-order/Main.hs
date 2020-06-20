@@ -6,11 +6,10 @@ import           AWSLambda
 import           ClassyPrelude
 import           Config
 import           Domain.UseCases.CreateOrder
+import           Types
 
 main :: IO ()
 main = handler
 
-handler = do
-  config <- getConfig
-  flip runReaderT config (createOrder "123456" "test@test.com")
+handler = createOrderHandler
 
