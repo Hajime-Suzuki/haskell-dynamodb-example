@@ -7,7 +7,8 @@
     "test": "test"
   },
   "scripts": {
-    "dev": "ghcid -c='stack repl --main-is haskell-dynamodb-example:exe:haskell-dynamodb-example-exe'  -T=main",
+    "dev:create": "ghcid -c='stack repl --main-is haskell-dynamodb-example:exe:create-order'  -T=main",
+    "dev:get": "ghcid -c='stack repl --main-is haskell-dynamodb-example:exe:get-order'  -T=main",
     "dynamo": "yarn sls dynamodb start"
   },
   "author": "",

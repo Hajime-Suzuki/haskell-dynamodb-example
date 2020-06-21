@@ -1,7 +1,6 @@
 {-# LANGUAGE FlexibleContexts #-}
 
-module Domain.UseCases.CreateOrder where
-
+module Domain.UseCases.GetOrder where
 
 import           ClassyPrelude
 import           Data.Either.Validation
@@ -17,22 +16,16 @@ import           Control.Monad.Catch
 import           Config
 import           Control.Exception
 import           Control.Monad.Except
-
 import           Data.Aeson.Encode.Pretty       ( encodePretty )
 
-createOrderHandler :: IO ()
-createOrderHandler = do
-  config <- getConfig
-  v      <- runUseCase2 config (createOrderUseCase "123456" "test@test.com")
-  pPrint $ encodePretty v
+getOrderHandler :: IO ()
+getOrderHandler = do
+  config   <- getConfig
+  mayOrder <- runUseCase2 config (getOrderUseCase "id1234")
+  pPrint $ encodePretty mayOrder
 
 
-createOrderUseCase :: Text -> Text -> UseCase2 Order
-createOrderUseCase userId email = do
-  let vOrder = mkOrder userId email
-  case vOrder of
-    Failure e     -> throwString e -- TODO: change to throwError when ExceptT is added to the stack
-    Success order -> do
-      res <- OrderRepo.save order
-      return order
+getOrderUseCase :: Text -> UseCase2 (Maybe Order)
+getOrderUseCase orderId = OrderRepo.findByOrderId orderId
+
 
