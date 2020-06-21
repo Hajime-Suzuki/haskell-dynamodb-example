@@ -9,7 +9,7 @@ import           Types
 import           Text.Pretty.Simple             ( pPrint )
 import           Domain.Order
 import           Repositories.Common
-import           Repositories.Order
+import qualified Repositories.Order            as OrderRepo
 import           Control.Lens
 import           Network.AWS.DynamoDB.ListTables
 import           Control.Monad.Trans.AWS
@@ -31,9 +31,7 @@ createOrder2 :: Repository m => Text -> Text -> m Order
 createOrder2 userId email = do
   let vOrder = mkOrder userId email
   case vOrder of
-    Failure e     -> throwString e
+    Failure e     -> throwString e -- TODO: change to throwError when ExceptT is added to the stack
     Success order -> do
-      res <- saveOrder order
+      res <- OrderRepo.save order
       return order
-
-

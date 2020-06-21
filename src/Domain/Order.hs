@@ -11,7 +11,7 @@ import           Control.Lens
 import           Data.Either.Validation
 import           Text.Email.Validate            ( isValid )
 
-data OrderStatus = Pending | Paid | Processed | Delivered deriving (Show, Generic, ToJSON)
+data OrderStatus = Pending | Paid | Processed | Delivered deriving (Show, Read, Generic, ToJSON)
 
 data Order
   = Order

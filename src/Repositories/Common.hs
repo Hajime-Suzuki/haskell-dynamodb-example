@@ -8,6 +8,9 @@ import           Control.Monad.Trans.AWS
 import           Network.AWS             hiding ( send )
 import           Network.AWS.DynamoDB
 import           Types
+import           Control.Lens
+
+type FromDB a = HashMap Text AttributeValue -> Maybe a
 
 dbEnv :: (Applicative m, MonadIO m, MonadCatch m) => m Env
 dbEnv =
@@ -17,8 +20,10 @@ dbEnv =
         <&> envRegion
         .~  Frankfurt
 
-
 handleReq :: (Repository m, AWSRequest a) => a -> m (Rs a)
 handleReq a = do
   env <- asks (^. configEnv)
   runResourceT . runAWST env $ send a
+
+attrS v = attributeValue & avS .~ v
+
