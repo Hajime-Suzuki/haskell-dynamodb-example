@@ -25,5 +25,9 @@ handleReq a = do
   env <- asks (^. configEnv)
   runResourceT . runAWST env $ send a
 
+
+attrS :: Maybe Text -> AttributeValue
 attrS v = attributeValue & avS .~ v
 
+attrSJust :: Text -> AttributeValue
+attrSJust v = attributeValue & avS ?~ v

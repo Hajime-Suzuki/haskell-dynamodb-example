@@ -32,12 +32,12 @@ save order = do
     tableName <- asks (^. configTableName)
     return $ putItem tableName & piItem .~ item
   item = mapFromList
-    [ ("PK"     , attrS . Just . mkPK $ order ^. orderId)
-    , ("SK"     , attrS . Just $ mkSK)
-    , ("userId" , attrS . Just $ order ^. orderUserId)
-    , ("status" , attrS . Just . tshow $ order ^. orderStatus)
-    , ("email"  , attrS . Just $ order ^. orderEmail . rawEmail)
-    , ("address", attrS . Just $ order ^. orderAddress)
+    [ ("PK"     , attrSJust . mkPK $ order ^. orderId)
+    , ("SK"     , attrSJust mkSK)
+    , ("userId" , attrSJust $ order ^. orderUserId)
+    , ("status" , attrSJust . tshow $ order ^. orderStatus)
+    , ("email"  , attrSJust $ order ^. orderEmail . rawEmail)
+    , ("address", attrSJust $ order ^. orderAddress)
     ]
 
 getByOrderId :: Repository m => PK -> m (Maybe Order)
@@ -52,13 +52,16 @@ getByOrderId orderId = do
   req = do
     tableName <- asks (^. configTableName)
     return $ getItem tableName & giKey .~ keyCondition
-  keyCondition = mapFromList
-    [("PK", attrS . Just . mkPK $ orderId), ("SK", attrS . Just $ mkSK)]
+  keyCondition =
+    mapFromList [("PK", attrSJust . mkPK $ orderId), ("SK", attrSJust mkSK)]
 
-updateStatus :: Repository m => PK -> OrderStatus -> m ()
+updateStatus :: Repository m => PK -> OrderStatus -> m Order
 updateStatus orderId status = do
   res <- handleReq =<< req
-  pPrint $ res ^. uirsAttributes
+  let mayOrder = fromDB $ res ^. uirsAttributes
+  case mayOrder of
+    Nothing    -> throwString "something wrong with data in DB. could not parse"
+    Just order -> return order
  where
   req = do
     tableName <- asks (^. configTableName)
@@ -67,16 +70,18 @@ updateStatus orderId status = do
       &  uiKey
       .~ keys
       &  uiUpdateExpression
-      .~ expression
+      ?~ expression
       &  uiExpressionAttributeNames
       .~ expressionName
       &  uiExpressionAttributeValues
       .~ values
-  keys = mapFromList
-    [("PK", attrS . Just . mkPK $ orderId), ("SK", attrS . Just $ mkSK)]
-  expression     = Just "SET #status = :orderStatus"
+      &  uiReturnValues
+      ?~ AllNew
+  keys =
+    mapFromList [("PK", attrSJust . mkPK $ orderId), ("SK", attrSJust mkSK)]
+  expression     = "SET #status = :orderStatus"
   expressionName = mapFromList [("#status", "status")]
-  values         = mapFromList [(":orderStatus", attrS . Just $ tshow status)]
+  values         = mapFromList [(":orderStatus", attrSJust $ tshow status)]
 
 
 mkPK :: Text -> Text
