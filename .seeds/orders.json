@@ -3,24 +3,32 @@
     "PK": "order_1",
     "SK": "order",
     "userId": "1234",
-    "status": "pending"
+    "status": "Pending",
+    "address": "some address",
+    "email": "order1@test.com"
   },
   {
     "PK": "order_2",
     "SK": "order",
     "userId": "1234",
-    "status": "paid"
+    "status": "Pending",
+    "address": "some address",
+    "email": "order1@test.com"
   },
   {
     "PK": "order_3",
     "SK": "order",
     "userId": "abcd",
-    "status": "delivered"
+    "status": "Delivered",
+    "address": "some address",
+    "email": "order1@test.com"
   },
   {
     "PK": "order_4",
     "SK": "order",
     "userId": "efgh",
-    "status": "processed"
+    "status": "Processed",
+    "address": "some address",
+    "email": "order1@test.com"
   }
 ]

@@ -21,11 +21,11 @@ import           Data.Aeson.Encode.Pretty       ( encodePretty )
 getOrderHandler :: IO ()
 getOrderHandler = do
   config   <- getConfig
-  mayOrder <- runUseCase2 config (getOrderUseCase "id1234")
+  mayOrder <- runUseCase2 config (getOrderUseCase "1")
   pPrint $ encodePretty mayOrder
 
 
 getOrderUseCase :: Text -> UseCase2 (Maybe Order)
-getOrderUseCase orderId = OrderRepo.findByOrderId orderId
+getOrderUseCase = OrderRepo.getByOrderId
 
 

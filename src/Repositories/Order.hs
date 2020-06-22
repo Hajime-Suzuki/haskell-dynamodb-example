@@ -32,16 +32,16 @@ save order = do
     tableName <- asks (^. configTableName)
     return $ putItem tableName & piItem .~ item
   item = mapFromList
-    [ ("PK"     , attrS . Just $ order ^. orderId)
-    , ("SK"     , attrS $ Just "order")
+    [ ("PK"     , attrS . Just . mkPK $ order ^. orderId)
+    , ("SK"     , attrS . Just $ mkSK)
     , ("userId" , attrS . Just $ order ^. orderUserId)
     , ("status" , attrS . Just . tshow $ order ^. orderStatus)
     , ("email"  , attrS . Just $ order ^. orderEmail . rawEmail)
     , ("address", attrS . Just $ order ^. orderAddress)
     ]
 
-findByOrderId :: Repository m => PK -> m (Maybe Order)
-findByOrderId orderId = do
+getByOrderId :: Repository m => PK -> m (Maybe Order)
+getByOrderId orderId = do
   res <- handleReq =<< req
   let resData = res ^. girsItem
   return $ if null resData
@@ -53,8 +53,37 @@ findByOrderId orderId = do
     tableName <- asks (^. configTableName)
     return $ getItem tableName & giKey .~ keyCondition
   keyCondition = mapFromList
-    [("PK", attrS . Just $ orderId), ("SK", attrS . Just $ "order")]
+    [("PK", attrS . Just . mkPK $ orderId), ("SK", attrS . Just $ mkSK)]
 
+updateStatus :: Repository m => PK -> OrderStatus -> m ()
+updateStatus orderId status = do
+  res <- handleReq =<< req
+  pPrint $ res ^. uirsAttributes
+ where
+  req = do
+    tableName <- asks (^. configTableName)
+    return
+      $  updateItem tableName
+      &  uiKey
+      .~ keys
+      &  uiUpdateExpression
+      .~ expression
+      &  uiExpressionAttributeNames
+      .~ expressionName
+      &  uiExpressionAttributeValues
+      .~ values
+  keys = mapFromList
+    [("PK", attrS . Just . mkPK $ orderId), ("SK", attrS . Just $ mkSK)]
+  expression     = Just "SET #status = :orderStatus"
+  expressionName = mapFromList [("#status", "status")]
+  values         = mapFromList [(":orderStatus", attrS . Just $ tshow status)]
+
+
+mkPK :: Text -> Text
+mkPK orderId = "order_" <> orderId
+
+mkSK :: Text
+mkSK = "order"
 
 fromDB :: FromDB Order
 fromDB dbData = do
