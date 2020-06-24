@@ -38,6 +38,7 @@ dependencies:
   - mtl
   - aeson-pretty
   - resourcet
+  - containers
 
 default-extensions:
   - OverloadedStrings

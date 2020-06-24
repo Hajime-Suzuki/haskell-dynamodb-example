@@ -3,7 +3,7 @@
 {-# LANGUAGE ConstraintKinds #-}
 {-# LANGUAGE ConstrainedClassMethods  #-}
 
-module Lib where
+module SandBox where
 
 import           ClassyPrelude
 import           Text.Pretty.Simple             ( pPrint )
@@ -21,7 +21,7 @@ import           Repositories.Common
 import           Domain.Order
 import           Data.Aeson                     ( encode )
 import           Data.Either.Validation
-
+import           Repositories.Types
 
 getTablesTest :: Repository' ()
 getTablesTest = do

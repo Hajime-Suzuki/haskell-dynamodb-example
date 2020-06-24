@@ -5,4 +5,5 @@ import           Repositories.Common
 import           Types
 
 getConfig :: IO Config
-getConfig = Config <$> dbEnv <*> pure "haskell-dynamodb-example"
+getConfig =
+  Config <$> dbEnv <*> pure "haskell-dynamodb-example" <*> pure "GSI1"

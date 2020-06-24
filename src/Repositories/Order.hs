@@ -1,27 +1,31 @@
+{-# LANGUAGE ConstraintKinds  #-}
 {-# LANGUAGE FlexibleContexts #-}
-{-# LANGUAGE ConstraintKinds #-}
 
 module Repositories.Order where
 
 import           ClassyPrelude
-import           Text.Pretty.Simple             ( pPrint )
-import           Data.Either.Validation
-import           Data.Maybe
-import           Types
-import           Repositories.Common
-import           Control.Lens
-import           Control.Monad.Trans.AWS
-import           Control.Monad.Catch
 import           Config
 import           Control.Exception
+import           Control.Lens
+import           Control.Monad.Catch
 import           Control.Monad.Except
-import           Network.AWS.DynamoDB.PutItem
-import           Network.AWS.DynamoDB
-import           Domain.Order
+import           Control.Monad.Trans.AWS
 import           Control.Monad.Trans.Resource
+import           Data.Either.Validation
+-- import           Data.Maybe
+import           Data.List                      ( foldl )
+import           Domain.Order
+import           Network.AWS.DynamoDB
+import           Network.AWS.DynamoDB.PutItem
 import           Prelude                        ( read )
+import           Repositories.Common
+import           Text.Pretty.Simple             ( pPrint )
+import           Types
+import           Repositories.Types
+import qualified Data.Map.Strict               as M
+import           Data.Text                      ( splitOn )
 
-type PK = Text
+
 
 save :: Repository m => Order -> m ()
 save order = do
@@ -32,30 +36,51 @@ save order = do
     tableName <- asks (^. configTableName)
     return $ putItem tableName & piItem .~ item
   item = mapFromList
-    [ ("PK"     , attrSJust . mkPK $ order ^. orderId)
+    [ ("PK"     , attrSJust . fromOrderId $ order ^. orderId)
     , ("SK"     , attrSJust mkSK)
-    , ("userId" , attrSJust $ order ^. orderUserId)
+    , ("GSI1_PK", attrSJust . fromUserId $ order ^. orderUserId)
     , ("status" , attrSJust . tshow $ order ^. orderStatus)
     , ("email"  , attrSJust $ order ^. orderEmail . rawEmail)
     , ("address", attrSJust $ order ^. orderAddress)
     ]
 
-getByOrderId :: Repository m => PK -> m (Maybe Order)
+getByOrderId :: Repository m => Text -> m (Maybe Order)
 getByOrderId orderId = do
   res <- handleReq =<< req
   let resData = res ^. girsItem
   return $ if null resData
     then Nothing
     else maybe (error "parse error") return (fromDB resData) -- TODO: remove error and add exception
-
  where
   req = do
     tableName <- asks (^. configTableName)
     return $ getItem tableName & giKey .~ keyCondition
-  keyCondition =
-    mapFromList [("PK", attrSJust . mkPK $ orderId), ("SK", attrSJust mkSK)]
+  keyCondition = mapFromList
+    [("PK", attrSJust . fromOrderId $ orderId), ("SK", attrSJust mkSK)]
 
-updateStatus :: Repository m => PK -> OrderStatus -> m Order
+
+getByUserId :: Repository m => Text -> m [Order] -- TODO: add error when parse does not work
+getByUserId userId = do
+  res <- handleReq =<< req
+  let resData = res ^. qrsItems
+  return . catMaybes $ fromDB <$> resData
+ where
+  req = do
+    tableName <- asks (^. configTableName)
+    gsiName   <- asks (^. configGSI1Name)
+    return
+      $  query tableName
+      &  qIndexName
+      ?~ gsiName
+      &  qKeyConditionExpression
+      ?~ keyCondition
+      &  qExpressionAttributeValues
+      .~ values
+  keyCondition = "GSI1_PK = :GSI_PK"
+  values       = mapFromList [(":GSI_PK", attrSJust $ fromUserId userId)]
+
+
+updateStatus :: Repository m => Text -> OrderStatus -> m Order
 updateStatus orderId status = do
   res <- handleReq =<< req
   let mayOrder = fromDB $ res ^. uirsAttributes
@@ -77,27 +102,30 @@ updateStatus orderId status = do
       .~ values
       &  uiReturnValues
       ?~ AllNew
-  keys =
-    mapFromList [("PK", attrSJust . mkPK $ orderId), ("SK", attrSJust mkSK)]
-  expression     = "SET #status = :orderStatus"
+  keys = mapFromList
+    [("PK", attrSJust . fromOrderId $ orderId), ("SK", attrSJust mkSK)]
+  expression     = "SET #status = :status"
   expressionName = mapFromList [("#status", "status")]
-  values         = mapFromList [(":orderStatus", attrSJust $ tshow status)]
+  values         = mapFromList [(":status", attrSJust $ tshow status)]
 
 
-mkPK :: Text -> Text
-mkPK orderId = "order_" <> orderId
+fromOrderId :: Text -> Text
+fromOrderId orderId = "order_" <> orderId
 
 mkSK :: Text
 mkSK = "order"
 
+fromUserId :: Text -> Text
+fromUserId userId = "user_" <> userId
+
 fromDB :: FromDB Order
 fromDB dbData = do
-  pk      <- lookup "PK" dbData >>= (^. avS)
-  sk      <- lookup "SK" dbData >>= (^. avS)
+  orderId <- lookup "PK" dbData >>= (^. avS) >>= return . drop 6
+  userId  <- lookup "GSI1_PK" dbData >>= (^. avS) >>= return . drop 5
   status  <- lookup "status" dbData >>= (^. avS) >>= readMay . unpack
   address <- lookup "address" dbData >>= (^. avS)
   email   <- lookup "email" dbData >>= (^. avS)
-  return $ Order pk sk status address (Email email)
+  return $ Order orderId userId status address (Email email)
 
 
 

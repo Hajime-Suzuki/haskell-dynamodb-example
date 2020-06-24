@@ -2,33 +2,33 @@
   {
     "PK": "order_1",
     "SK": "order",
-    "userId": "1234",
+    "GSI1_PK": "user_1234",
     "status": "Pending",
-    "address": "some address",
+    "address": "address of user 1234",
     "email": "order1@test.com"
   },
   {
     "PK": "order_2",
     "SK": "order",
-    "userId": "1234",
+    "GSI1_PK": "user_1234",
     "status": "Pending",
-    "address": "some address",
+    "address": "address of user 1234",
     "email": "order1@test.com"
   },
   {
     "PK": "order_3",
     "SK": "order",
-    "userId": "abcd",
+    "GSI1_PK": "user_8765",
     "status": "Delivered",
-    "address": "some address",
-    "email": "order1@test.com"
+    "address": "address of user 8765",
+    "email": "order3@test.com"
   },
   {
     "PK": "order_4",
     "SK": "order",
-    "userId": "efgh",
+    "GSI1_PK": "user_9876",
     "status": "Processed",
-    "address": "some address",
-    "email": "order1@test.com"
+    "address": "address of user 9876",
+    "email": "order4@test.com"
   }
 ]

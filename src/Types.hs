@@ -24,12 +24,10 @@ data Config
   = Config
       { _configEnv :: Env
       , _configTableName :: Text
+      , _configGSI1Name :: Text
       }
 
 makeLenses ''Config
-
-type Repository' a = ReaderT Config IO a
-type Repository m = (MonadReader Config m, MonadUnliftIO m, MonadCatch m)
 
 newtype UseCase a = UseCase {
   unUseCase ::  ReaderT Config (ExceptT String IO) a -- TODO: type exception

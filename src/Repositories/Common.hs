@@ -2,12 +2,12 @@
 
 module Repositories.Common where
 import           ClassyPrelude
-import           Control.Lens
 import           Control.Monad.Catch
 import           Control.Monad.Trans.AWS
 import           Network.AWS             hiding ( send )
 import           Network.AWS.DynamoDB
 import           Types
+import           Repositories.Types
 import           Control.Lens
 
 type FromDB a = HashMap Text AttributeValue -> Maybe a
