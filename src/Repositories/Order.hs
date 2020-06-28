@@ -12,7 +12,6 @@ import           Control.Monad.Except
 import           Control.Monad.Trans.AWS
 import           Control.Monad.Trans.Resource
 import           Data.Either.Validation
--- import           Data.Maybe
 import           Data.List                      ( foldl )
 import           Domain.Order
 import           Network.AWS.DynamoDB

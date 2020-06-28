@@ -19,18 +19,18 @@ provider:
       Resource: "arn:aws:dynamodb:#{AWS::Region}:#{AWS::AccountId}:*"
 
 functions:
-  test:
-    handler: haskell-dynamodb-example.haskell-dynamodb-example-exe
-    # Here, mypackage is the Haskell package name and myfunc is the executable
-    # name as defined in the Cabal file. The handler field may be prefixed
-    # with a path of the form `dir1/.../dirn`, relative to `serverless.yml`,
-    # which points to the location where the Haskell package `mypackage` is
-    # defined. This prefix is not needed when the Stack project is defined at
-    # the same level as `serverless.yml`.
+  get-order:
+    handler: haskell-dynamodb-example.get-order
+    events:
+      - http:
+          method: GET
+          path: orders/{id}
 
 custom:
   serverless-offline:
-    port: 4000
+    httpPort: 4000
+    useDocker: true
+    useChildProcesses: true
 
   dynamodb:
     stages:
@@ -47,6 +47,6 @@ custom:
             sources: [".seeds/orders.json"]
 
 plugins:
+  - serverless-dynamodb-local
   - serverless-haskell
   - serverless-offline
-  - serverless-dynamodb-local

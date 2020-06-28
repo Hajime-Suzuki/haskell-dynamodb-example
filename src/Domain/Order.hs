@@ -1,25 +1,25 @@
-{-# LANGUAGE DeriveGeneric #-}
-{-# LANGUAGE DeriveAnyClass #-}
+{-# LANGUAGE DeriveAnyClass  #-}
+{-# LANGUAGE DeriveGeneric   #-}
 {-# LANGUAGE TemplateHaskell #-}
 
 module Domain.Order where
 
 import           ClassyPrelude
-import           Data.Aeson              hiding ( Success )
-import           Text.Casing                    ( camel )
 import           Control.Lens
+import           Data.Aeson             hiding (Success)
 import           Data.Either.Validation
-import           Text.Email.Validate            ( isValid )
+import           Text.Casing            (camel)
+import           Text.Email.Validate    (isValid)
 
 data OrderStatus = Pending | Paid | Processed | Delivered deriving (Show, Read, Generic, ToJSON)
 
 data Order
   = Order
-      { _orderId     :: Text
-      , _orderUserId :: Text
-      , _orderStatus :: OrderStatus
+      { _orderId      :: Text
+      , _orderUserId  :: Text
+      , _orderStatus  :: OrderStatus
       , _orderAddress :: Text
-      , _orderEmail :: Email
+      , _orderEmail   :: Email
       }
   deriving (Show, Generic)
 

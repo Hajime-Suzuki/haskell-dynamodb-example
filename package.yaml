@@ -68,6 +68,16 @@ executables:
     dependencies:
       - haskell-dynamodb-example
 
+  get-orders-by-user:
+    main: Main.hs
+    source-dirs: app/get-orders-by-user
+    ghc-options:
+      - -threaded
+      - -rtsopts
+      - -with-rtsopts=-N
+    dependencies:
+      - haskell-dynamodb-example
+
   update-status:
     main: Main.hs
     source-dirs: app/update-status
