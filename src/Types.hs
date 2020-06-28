@@ -17,8 +17,10 @@ import           Control.Monad.Except
 import           Control.Monad.Trans.AWS
 import           Control.Monad.Trans.Except
 import           Data.Aeson
+import           Data.Aeson.Embedded
 import           Network.AWS
 import           Text.Casing                    ( camel )
+import           AWSLambda.Events.APIGateway
 
 data Config
   = Config
@@ -46,3 +48,6 @@ newtype UseCase2 a = UseCase2 {
 runUseCase2 :: Config -> UseCase2 a -> IO a
 runUseCase2 r = flip runReaderT r . unUseCase2
 
+type Adapter
+  =  APIGatewayProxyRequest (Embedded Value)
+  -> IO (APIGatewayProxyResponse (Embedded Value))

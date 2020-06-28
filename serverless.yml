@@ -6,8 +6,10 @@ provider:
   name: aws
   runtime: haskell
   region: eu-central-1
-  stage: dev
+  stage: ${opt:stage, 'local'}
   profile: ${opt:profile, 'opc-sandbox'}
+  environment:
+    STAGE: ${self:provider.stage}
   iamRoleStatements:
     - Effect: Allow
       Action:
@@ -29,8 +31,7 @@ functions:
 custom:
   serverless-offline:
     httpPort: 4000
-    useDocker: true
-    useChildProcesses: true
+    # useDocker: true
 
   dynamodb:
     stages:
