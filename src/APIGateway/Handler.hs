@@ -10,11 +10,15 @@ import           Text.Pretty.Simple
 import           Data.Aeson.Encode.Pretty
 import           APIGateway.MockRequest
 import           Types
+import           AWSLambda.Events.APIGateway
+import           Data.Maybe
 
-handleRequest :: Adapter -> IO ()
-handleRequest adapter = do
+handleRequest
+  :: Adapter -> Maybe (APIGatewayProxyRequest (Embedded Value)) -> IO ()
+handleRequest adapter mockReq = do
   stage     <- lookupEnv "STAGE"
   isOffline <- lookupEnv "IS_OFFLINE"
   case (stage, isOffline) of
-    (Nothing, Nothing) -> adapter defaultMockRequest >>= pPrint . encodePretty
-    _                  -> apiGatewayMain adapter
+    (Nothing, Nothing) ->
+      adapter (maybe defaultMockRequest id mockReq) >>= pPrint . encodePretty
+    _ -> apiGatewayMain adapter

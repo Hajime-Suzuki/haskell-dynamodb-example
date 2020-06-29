@@ -3,19 +3,19 @@ import           AWSLambda.Events.APIGateway
 import           ClassyPrelude
 
 defaultMockRequest = APIGatewayProxyRequest
-  { _agprqResource              = "resource"
-  , _agprqPath                  = "path"
-  , _agprqHttpMethod            = "GET"
-  , _agprqHeaders               = [("header1", "some val")]
-  , _agprqQueryStringParameters = []
-  , _agprqPathParameters        = mapFromList []
-  , _agprqStageVariables        = mapFromList []
+  { _agprqResource              = mempty
+  , _agprqPath                  = mempty
+  , _agprqHttpMethod            = mempty
+  , _agprqHeaders               = mempty
+  , _agprqQueryStringParameters = mempty
+  , _agprqPathParameters        = mempty
+  , _agprqStageVariables        = mempty
   , _agprqRequestContext        = ProxyRequestContext
     { _prcPath         = Nothing
-    , _prcAccountId    = ""
-    , _prcResourceId   = ""
-    , _prcStage        = ""
-    , _prcRequestId    = ""
+    , _prcAccountId    = mempty
+    , _prcResourceId   = mempty
+    , _prcStage        = mempty
+    , _prcRequestId    = mempty
     , _prcIdentity     = RequestIdentity
                            { _riCognitoIdentityPoolId         = Nothing
                            , _riAccountId                     = Nothing
@@ -29,10 +29,10 @@ defaultMockRequest = APIGatewayProxyRequest
                            , _riUserAgent                     = Nothing
                            , _riUser                          = Nothing
                            }
-    , _prcResourcePath = ""
-    , _prcHttpMethod   = ""
-    , _prcApiId        = ""
-    , _prcProtocol     = ""
+    , _prcResourcePath = mempty
+    , _prcHttpMethod   = mempty
+    , _prcApiId        = mempty
+    , _prcProtocol     = mempty
     , _prcAuthorizer   = Nothing
     }
   , _agprqBody                  = Nothing

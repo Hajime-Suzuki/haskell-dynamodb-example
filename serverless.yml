@@ -35,14 +35,14 @@ custom:
 
   dynamodb:
     stages:
-      - dev
+      - local
     start:
       port: 8000
       migrate: true
       seed: true
       inMemory: true
     seed:
-      dev:
+      local:
         sources:
           - table: haskell-dynamodb-example
             sources: [".seeds/orders.json"]
