@@ -35,12 +35,12 @@ save order = do
     tableName <- asks (^. configTableName)
     return $ putItem tableName & piItem .~ item
   item = mapFromList
-    [ ("PK"     , attrSJust . fromOrderId $ order ^. orderId)
-    , ("SK"     , attrSJust mkSK)
-    , ("GSI1_PK", attrSJust . fromUserId $ order ^. orderUserId)
-    , ("status" , attrSJust . tshow $ order ^. orderStatus)
-    , ("email"  , attrSJust $ order ^. orderEmail . rawEmail)
-    , ("address", attrSJust $ order ^. orderAddress)
+    [ ("PK"         , attrSJust . fromOrderId $ order ^. orderId)
+    , ("SK"         , attrSJust mkSK)
+    , (dbUserIdField, attrSJust . fromUserId $ order ^. orderUserId)
+    , ("status"     , attrSJust . tshow $ order ^. orderStatus)
+    , ("email"      , attrSJust $ order ^. orderEmail . rawEmail)
+    , ("address"    , attrSJust $ order ^. orderAddress)
     ]
 
 getByOrderId :: Repository m => Text -> m (Maybe Order)
@@ -80,12 +80,12 @@ getByUserId userId = do
 
 
 updateStatus :: Repository m => Text -> OrderStatus -> m Order
-updateStatus orderId status = do
-  let val = attrSJust $ tshow status
-  updateOrder orderId "status" val
+updateStatus orderId status =
+  updateOrder orderId [("status", attrSJust $ tshow status)]
 
-updateOrder :: Repository m => Text -> Text -> AttributeValue -> m Order
-updateOrder orderId key val = do
+updateOrder :: Repository m => Text -> [(Text, AttributeValue)] -> m Order
+updateOrder orderId fieldValues = do
+  pPrint expressionValues
   res <- handleReq =<< req
   let mayOrder = fromDB $ res ^. uirsAttributes
   case mayOrder of
@@ -97,20 +97,23 @@ updateOrder orderId key val = do
     return
       $  updateItem tableName
       &  uiKey
-      .~ keys
+      .~ keyCondition
       &  uiUpdateExpression
       ?~ expression
       &  uiExpressionAttributeNames
       .~ expressionName
       &  uiExpressionAttributeValues
-      .~ values
+      .~ expressionValues
       &  uiReturnValues
       ?~ AllNew
-  keys = mapFromList
+  keyCondition = mapFromList
     [("PK", attrSJust . fromOrderId $ orderId), ("SK", attrSJust mkSK)]
-  expression     = "SET " <> "#" <> key <> "= :" <> key
-  expressionName = mapFromList [("#" <> key, key)]
-  values         = mapFromList [(":status", val)]
+  expression       = "SET " <> intercalate ", " exp
+  expressionName   = mapFromList expNames
+  expressionValues = mapFromList expValues
+  exp = ((\(key, _) -> "#" <> key <> " = :" <> key) <$> fieldValues)
+  expNames         = (\(key, _) -> ("#" <> key, key)) <$> fieldValues
+  expValues        = (\(key, val) -> (":" <> key, val)) <$> fieldValues
 
 
 fromOrderId :: Text -> Text
@@ -122,10 +125,12 @@ mkSK = "order"
 fromUserId :: Text -> Text
 fromUserId userId = "user_" <> userId
 
+dbUserIdField = "GSI1_PK"
+
 fromDB :: FromDB Order
 fromDB dbData = do
   orderId <- lookup "PK" dbData >>= (^. avS) >>= return . drop 6
-  userId  <- lookup "GSI1_PK" dbData >>= (^. avS) >>= return . drop 5
+  userId  <- lookup dbUserIdField dbData >>= (^. avS) >>= return . drop 5
   status  <- lookup "status" dbData >>= (^. avS) >>= readMay . unpack
   address <- lookup "address" dbData >>= (^. avS)
   email   <- lookup "email" dbData >>= (^. avS)
