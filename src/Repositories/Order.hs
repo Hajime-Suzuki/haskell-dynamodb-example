@@ -81,6 +81,11 @@ getByUserId userId = do
 
 updateStatus :: Repository m => Text -> OrderStatus -> m Order
 updateStatus orderId status = do
+  let val = attrSJust $ tshow status
+  updateOrder orderId "status" val
+
+updateOrder :: Repository m => Text -> Text -> AttributeValue -> m Order
+updateOrder orderId key val = do
   res <- handleReq =<< req
   let mayOrder = fromDB $ res ^. uirsAttributes
   case mayOrder of
@@ -103,9 +108,9 @@ updateStatus orderId status = do
       ?~ AllNew
   keys = mapFromList
     [("PK", attrSJust . fromOrderId $ orderId), ("SK", attrSJust mkSK)]
-  expression     = "SET #status = :status"
-  expressionName = mapFromList [("#status", "status")]
-  values         = mapFromList [(":status", attrSJust $ tshow status)]
+  expression     = "SET " <> "#" <> key <> "= :" <> key
+  expressionName = mapFromList [("#" <> key, key)]
+  values         = mapFromList [(":status", val)]
 
 
 fromOrderId :: Text -> Text
