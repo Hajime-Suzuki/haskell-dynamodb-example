@@ -17,14 +17,7 @@ import           Control.Monad.Catch
 import           Config
 import           Control.Exception
 import           Control.Monad.Except
-
 import           Data.Aeson.Encode.Pretty       ( encodePretty )
-
-createOrderHandler :: IO ()
-createOrderHandler = do
-  config <- getConfig
-  v      <- runUseCase2 config (createOrderUseCase "123456" "test@test.com")
-  pPrint $ encodePretty v
 
 
 createOrderUseCase :: Text -> Text -> UseCase2 Order
@@ -35,4 +28,3 @@ createOrderUseCase userId email = do
     Success order -> do
       res <- OrderRepo.save order
       return order
-

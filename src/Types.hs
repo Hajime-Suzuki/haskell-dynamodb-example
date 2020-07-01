@@ -51,3 +51,7 @@ runUseCase2 r = flip runReaderT r . unUseCase2
 type Adapter
   =  APIGatewayProxyRequest (Embedded Value)
   -> IO (APIGatewayProxyResponse (Embedded Value))
+
+type Adapter' a b
+  =  APIGatewayProxyRequest (Embedded a)
+  -> IO (APIGatewayProxyResponse (Embedded b))

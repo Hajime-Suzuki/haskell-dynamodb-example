@@ -18,13 +18,6 @@ import           Control.Exception
 import           Control.Monad.Except
 import           Data.Aeson.Encode.Pretty       ( encodePretty )
 
-updateStatusHandler :: IO ()
-updateStatusHandler = do
-  config   <- getConfig
-  mayOrder <- runUseCase2 config (updateStatusUseCase "1" Delivered)
-  pPrint $ encodePretty mayOrder
-
-
 updateStatusUseCase :: Text -> OrderStatus -> UseCase2 Order
 updateStatusUseCase = OrderRepo.updateStatus
 

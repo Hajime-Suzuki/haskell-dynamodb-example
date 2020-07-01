@@ -75,8 +75,8 @@ getByUserId userId = do
       ?~ keyCondition
       &  qExpressionAttributeValues
       .~ values
-  keyCondition = "GSI1_PK = :GSI_PK"
-  values       = mapFromList [(":GSI_PK", attrSJust $ fromUserId userId)]
+  keyCondition = dbUserIdField <> "= :userId"
+  values       = mapFromList [(":userId", attrSJust $ fromUserId userId)]
 
 
 updateStatus :: Repository m => Text -> OrderStatus -> m Order
@@ -85,7 +85,6 @@ updateStatus orderId status =
 
 updateOrder :: Repository m => Text -> [(Text, AttributeValue)] -> m Order
 updateOrder orderId fieldValues = do
-  pPrint expressionValues
   res <- handleReq =<< req
   let mayOrder = fromDB $ res ^. uirsAttributes
   case mayOrder of

@@ -27,6 +27,12 @@ functions:
       - http:
           method: GET
           path: orders/{id}
+  update-order-status:
+    handler: haskell-dynamodb-example.update-status
+    events:
+      - http:
+          method: PUT
+          path: orders/{id}
 
 custom:
   serverless-offline:
