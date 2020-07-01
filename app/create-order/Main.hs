@@ -4,7 +4,7 @@ import qualified Data.Aeson                    as Aeson
 import           AWSLambda
 import           ClassyPrelude
 import           Config
-import           Domain.UseCases.CreateOrder
+import           Domain.UseCases
 import           Types
 import           APIGateway.Handler
 import           APIGateway.MockRequest

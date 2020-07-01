@@ -4,16 +4,14 @@ import           ClassyPrelude
 import           Control.Lens
 import           Config
 import           Types
-import           Domain.UseCases.GetOrder
-import           Domain.UseCases.GetOrdersByUserId
-import           Domain.UseCases.UpdateStatus
-import           Domain.UseCases.CreateOrder
+import           Domain.UseCases
 import           Data.Aeson
 import           Data.Maybe
 import           AWSLambda.Events.APIGateway
 import           Text.Pretty.Simple
 import           Domain.Order
 import           Domain.Types
+import           Adapters.Types
 
 getOrderAdapter :: Adapter () Value
 getOrderAdapter req = do

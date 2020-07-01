@@ -7,7 +7,7 @@ import           Data.Aeson.TextValue
 import           AWSLambda
 import           AWSLambda.Events.APIGateway
 import           ClassyPrelude
-import           Domain.UseCases.UpdateStatus
+import           Domain.UseCases
 import           Types
 import           APIGateway.Handler
 import           APIGateway.MockRequest

@@ -5,7 +5,7 @@ import           AWSLambda
 import           AWSLambda.Events.APIGateway
 import           ClassyPrelude
 import           Config
-import           Domain.UseCases.GetOrdersByUserId
+import           Domain.UseCases
 import           Types
 import           APIGateway.Handler
 import           Control.Lens

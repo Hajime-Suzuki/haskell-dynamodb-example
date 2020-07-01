@@ -10,9 +10,8 @@ import           Text.Pretty.Simple
 import           Data.Aeson.Encode.Pretty
 import           APIGateway.MockRequest
 import           Types
-import           AWSLambda.Events.APIGateway
 import           Data.Maybe
-
+import           Adapters.Types
 
 handleRequest
   :: (FromJSON a, ToJSON b)
