@@ -7,6 +7,7 @@ import           Repositories.Order
 import           Text.Pretty.Simple             ( pPrint )
 import           Types
 import           Data.Aeson.Encode.Pretty
+import           Domain.Types
 
 getOrdersByUserIdUseCase :: Text -> UseCase2 [Order]
 getOrdersByUserIdUseCase = getByUserId

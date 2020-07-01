@@ -9,6 +9,7 @@ import           Types
 import           Domain.Order
 import           Control.Lens
 import           Control.Monad.Catch
+import           Domain.Types
 
 data UpdateInput
   = UpdateInput

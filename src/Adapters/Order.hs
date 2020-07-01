@@ -13,8 +13,9 @@ import           Data.Maybe
 import           AWSLambda.Events.APIGateway
 import           Text.Pretty.Simple
 import           Domain.Order
+import           Domain.Types
 
--- getOrderAdapter :: Adapter' () Value
+getOrderAdapter :: Adapter () Value
 getOrderAdapter req = do
   config <- getConfig
   let orderId = fromMaybe (error "id not found")
@@ -24,7 +25,7 @@ getOrderAdapter req = do
   return $ responseOK & responseBodyEmbedded ?~ resBody
 
 
--- getOrderByUserIdAdapter :: Adapter' () Value
+getOrderByUserIdAdapter :: Adapter () Value
 getOrderByUserIdAdapter req = do
   config <- getConfig
   let userId = fromMaybe (error "id not found")
@@ -34,7 +35,7 @@ getOrderByUserIdAdapter req = do
   return $ responseOK & responseBodyEmbedded ?~ resBody
 
 
--- updateStatusAdapter :: Adapter' UpdateStatusPayload Value
+updateStatusAdapter :: Adapter UpdateStatusPayload Value
 updateStatusAdapter req = do
   config   <- getConfig
   mayOrder <- runUseCase2 config (updateStatusUseCase "1" Delivered)
@@ -42,7 +43,7 @@ updateStatusAdapter req = do
     [("order", toJSON mayOrder)]
 
 
--- createOrderAdapter :: Adapter' () Value
+createOrderAdapter :: Adapter () Value
 createOrderAdapter req = do
   config <- getConfig
   -- flip runReaderT config (createOrder "123456" "test@test.com")

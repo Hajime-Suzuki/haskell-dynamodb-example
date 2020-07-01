@@ -23,8 +23,7 @@ import           Types
 import           Repositories.Types
 import qualified Data.Map.Strict               as M
 import           Data.Text                      ( splitOn )
-
-
+import           Domain.Types
 
 save :: Repository m => Order -> m ()
 save order = do

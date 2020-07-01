@@ -17,6 +17,7 @@ import           Config
 import           Control.Exception
 import           Control.Monad.Except
 import           Data.Aeson.Encode.Pretty       ( encodePretty )
+import           Domain.Types
 
 updateStatusUseCase :: Text -> OrderStatus -> UseCase2 Order
 updateStatusUseCase = OrderRepo.updateStatus

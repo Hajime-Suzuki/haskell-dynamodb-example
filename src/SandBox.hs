@@ -27,20 +27,6 @@ import           Data.Either.Validation
 import           Repositories.Types
 import           Repositories.Order
 
-getTablesTest :: Repository' ()
-getTablesTest = do
-    liftIO domainTest
-    v <- getTables
-    pPrint v
-
-
-
-getTables :: Repository' [Text]
-getTables = do
-    res <- handleReq listTables
-    pPrint res
-    return $ res ^. ltrsTableNames
-
 
 domainTest :: IO ()
 domainTest = do
@@ -54,8 +40,8 @@ data ERR = Error1 | Error2 deriving (Show)
 instance Exception ERR
 
 newtype UC a = UC {
-  unUC ::  ReaderT Config (ExceptT ERR IO) a -- TODO: type exception
-} deriving (Functor, Applicative, Monad, MonadIO, MonadReader Config,MonadCatch, MonadThrow, MonadError ERR) -- TODO: add MonadUnliftIO
+  unUC ::  ReaderT Config (ExceptT ERR IO) a
+} deriving (Functor, Applicative, Monad, MonadIO, MonadReader Config,MonadCatch, MonadThrow, MonadError ERR)
 
 instance MonadUnliftIO UC where
     askUnliftIO = return $ UnliftIO

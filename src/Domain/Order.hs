@@ -10,49 +10,7 @@ import           Data.Aeson              hiding ( Success )
 import           Data.Either.Validation
 import           Text.Casing                    ( camel )
 import           Text.Email.Validate            ( isValid )
-
-data OrderStatus = Pending | Paid | Processed | Delivered deriving (Show, Read, Generic, ToJSON, FromJSON)
-
-data Order
-  = Order
-      { _orderId      :: Text
-      , _orderUserId  :: Text
-      , _orderStatus  :: OrderStatus
-      , _orderAddress :: Text
-      , _orderEmail   :: Email
-      }
-  deriving (Show, Generic)
-
-instance ToJSON Order where
-  toJSON = genericToJSON defaultOptions { fieldLabelModifier = camel . drop 6 }
-
-newtype Email = Email {
-  _rawEmail::Text
-} deriving (Show, Generic)
-makeLenses ''Email
-
-instance ToJSON Email where
-  toJSON = genericToJSON defaultOptions { fieldLabelModifier = camel . drop 3
-                                        , unwrapUnaryRecords = True
-                                        }
-
-makeLenses ''Order
-
-data CreateOrderError = InvalidUserId | InvalidAddress | InvalidEmail deriving(Show)
-
-
-data UpdateStatusPayload = UpdateStatusPayload {
-  _updateStatusPayloadStatus :: OrderStatus
-} deriving (Show, Generic)
-
-instance ToJSON UpdateStatusPayload where
-  toJSON = genericToJSON defaultOptions { fieldLabelModifier = camel . drop 8 }
-
-instance FromJSON UpdateStatusPayload where
-  parseJSON =
-    genericParseJSON defaultOptions { fieldLabelModifier = camel . drop 8 }
-
-makeLenses ''UpdateStatusPayload
+import           Domain.Types
 
 
 mkOrder :: Text -> Text -> Validation String Order

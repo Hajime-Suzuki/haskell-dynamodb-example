@@ -14,6 +14,7 @@ import           APIGateway.MockRequest
 import           Adapters.Order
 import           Domain.Order
 import           Control.Lens
+import           Domain.Types
 
 main :: IO ()
 main = handleRequest
@@ -21,7 +22,7 @@ main = handleRequest
   (  Just
   $  defaultMockRequest
   &  agprqBody
-  ?~ (TextValue . Embedded . toJSON $ UpdateStatusPayload Paid)
+  ?~ (TextValue . Embedded $ UpdateStatusPayload Paid)
   )
 
 

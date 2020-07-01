@@ -13,12 +13,16 @@ import           Types
 import           AWSLambda.Events.APIGateway
 import           Data.Maybe
 
+
 handleRequest
-  :: Adapter -> Maybe (APIGatewayProxyRequest (Embedded Value)) -> IO ()
+  :: (FromJSON a, ToJSON b)
+  => Adapter a b
+  -> Maybe (APIGatewayProxyRequest (Embedded a))
+  -> IO ()
 handleRequest adapter mockReq = do
   stage     <- lookupEnv "STAGE"
   isOffline <- lookupEnv "IS_OFFLINE"
   case (stage, isOffline) of
     (Nothing, Nothing) ->
-      adapter (maybe defaultMockRequest id mockReq) >>= pPrint . encodePretty
+      adapter (fromMaybe defaultMockRequest mockReq) >>= pPrint . encodePretty
     _ -> apiGatewayMain adapter

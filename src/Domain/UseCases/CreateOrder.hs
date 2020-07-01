@@ -18,7 +18,7 @@ import           Config
 import           Control.Exception
 import           Control.Monad.Except
 import           Data.Aeson.Encode.Pretty       ( encodePretty )
-
+import           Domain.Types
 
 createOrderUseCase :: Text -> Text -> UseCase2 Order
 createOrderUseCase userId email = do
