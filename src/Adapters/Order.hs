@@ -35,17 +35,22 @@ getOrderByUserIdAdapter req = do
 
 updateStatusAdapter :: Adapter UpdateStatusPayload Value
 updateStatusAdapter req = do
-  config   <- getConfig
-  mayOrder <- runUseCase2 config (updateStatusUseCase "1" Delivered)
+  config <- getConfig
+
+  let payload = fromJust $ req ^. requestBodyEmbedded
+      orderId = fromMaybe (error "id not found")
+                          (lookup "id" $ req ^. agprqPathParameters)
+  mayOrder <- runUseCase2 config $ updateStatusUseCase orderId payload
   return $ responseOK & responseBodyEmbedded ?~ object
     [("order", toJSON mayOrder)]
 
 
-createOrderAdapter :: Adapter () Value
+createOrderAdapter :: Adapter CreateOrderPayload Value
 createOrderAdapter req = do
   config <- getConfig
-  -- flip runReaderT config (createOrder "123456" "test@test.com")
-  -- v      <- runUseCase config (createOrder "123456" "test@test.com")
-  order  <- runUseCase2 config (createOrderUseCase "123456" "test@test.com")
+
+  let payload = fromJust $ req ^. requestBodyEmbedded -- TODO: add exception
+
+  order <- runUseCase2 config $ createOrderUseCase payload
   return $ responseOK & responseBodyEmbedded ?~ object [("order", toJSON order)]
 

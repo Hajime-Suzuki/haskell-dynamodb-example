@@ -5,8 +5,8 @@
 module Domain.Types where
 
 import           ClassyPrelude
-import           Data.Aeson
 import           Control.Lens
+import           Data.Aeson
 import           Text.Casing                    ( camel )
 
 data OrderStatus = Pending | Paid | Processed | Delivered deriving (Show, Read, Generic, ToJSON, FromJSON)
@@ -38,10 +38,29 @@ makeLenses ''Order
 
 data CreateOrderError = InvalidUserId | InvalidAddress | InvalidEmail deriving(Show)
 
+data CreateOrderPayload
+  = CreateOrderPayload
+      { _createOrderUserId  :: Text
+      , _createOrderAddress :: Text
+      , _createOrderEmail   :: Text
+      } deriving (Show, Generic)
 
-data UpdateStatusPayload = UpdateStatusPayload {
-  _updateStatusPayloadStatus :: OrderStatus
-} deriving (Show, Generic)
+instance ToJSON CreateOrderPayload where
+  toJSON =
+    genericToJSON defaultOptions { fieldLabelModifier = camel . drop 12 }
+
+instance FromJSON CreateOrderPayload where
+  parseJSON =
+    genericParseJSON defaultOptions { fieldLabelModifier = camel . drop 12 }
+
+makeLenses ''CreateOrderPayload
+
+
+data UpdateStatusPayload
+  = UpdateStatusPayload
+      { _updateStatusPayloadStatus :: OrderStatus
+      }
+  deriving (Show, Generic)
 
 instance ToJSON UpdateStatusPayload where
   toJSON =

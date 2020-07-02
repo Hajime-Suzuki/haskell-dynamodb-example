@@ -78,9 +78,10 @@ getByUserId userId = do
   values       = mapFromList [(":userId", attrSJust $ fromUserId userId)]
 
 
-updateStatus :: Repository m => Text -> OrderStatus -> m Order
-updateStatus orderId status =
-  updateOrder orderId [("status", attrSJust $ tshow status)]
+updateStatus :: Repository m => Text -> UpdateStatusPayload -> m Order
+updateStatus orderId payload = updateOrder
+  orderId
+  [("status", attrSJust $ tshow (payload ^. updateStatusPayloadStatus))]
 
 updateOrder :: Repository m => Text -> [(Text, AttributeValue)] -> m Order
 updateOrder orderId fieldValues = do

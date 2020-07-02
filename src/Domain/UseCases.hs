@@ -16,11 +16,11 @@ import           Control.Monad.Except
 import           Data.Aeson.Encode.Pretty       ( encodePretty )
 import           Domain.Types
 
-createOrderUseCase :: Text -> Text -> UseCase2 Order
-createOrderUseCase userId email = do
-  let vOrder = mkOrder userId email
-  case vOrder of
-    Failure e     -> throwString e -- TODO: change to throwError when ExceptT is added to the stack
+createOrderUseCase :: CreateOrderPayload -> UseCase2 Order
+createOrderUseCase payload = do
+  newOrder <- liftIO $ mkOrder payload
+  case newOrder of
+    Failure e     -> throwString e
     Success order -> do
       res <- OrderRepo.save order
       return order
@@ -31,6 +31,5 @@ getOrderUseCase = OrderRepo.getByOrderId
 getOrdersByUserIdUseCase :: Text -> UseCase2 [Order]
 getOrdersByUserIdUseCase = OrderRepo.getByUserId
 
-updateStatusUseCase :: Text -> OrderStatus -> UseCase2 Order
+updateStatusUseCase :: Text -> UpdateStatusPayload -> UseCase2 Order
 updateStatusUseCase = OrderRepo.updateStatus
-

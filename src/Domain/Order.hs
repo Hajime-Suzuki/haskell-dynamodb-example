@@ -1,26 +1,23 @@
-{-# LANGUAGE DeriveAnyClass  #-}
-{-# LANGUAGE DeriveGeneric   #-}
-{-# LANGUAGE TemplateHaskell #-}
-
 module Domain.Order where
 
 import           ClassyPrelude
 import           Control.Lens
-import           Data.Aeson              hiding ( Success )
 import           Data.Either.Validation
-import           Text.Casing                    ( camel )
 import           Text.Email.Validate            ( isValid )
 import           Domain.Types
+import           Data.UUID.V4                   ( nextRandom )
+import qualified Data.UUID                     as UUID
 
-
-mkOrder :: Text -> Text -> Validation String Order
-mkOrder uId email =
-  Order
-    <$> pure "id1234"
-    <*> parseUserId uId
+mkOrder :: CreateOrderPayload -> IO (Validation String Order)
+mkOrder payload = do
+  id <- UUID.toText <$> nextRandom
+  return
+    $   Order
+    <$> pure "1234"
+    <*> parseUserId (payload ^. createOrderUserId)
     <*> pure Pending
-    <*> pure "address"
-    <*> mkEmail email
+    <*> pure (payload ^. createOrderAddress)
+    <*> mkEmail (payload ^. createOrderEmail)
 
 parseUserId :: Text -> Validation String Text
 parseUserId id =

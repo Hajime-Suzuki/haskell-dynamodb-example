@@ -28,13 +28,6 @@ import           Repositories.Types
 import           Repositories.Order
 
 
-domainTest :: IO ()
-domainTest = do
-    let order = mkOrder "12345" "test@test.com"
-    case order of
-        Failure e     -> pPrint e
-        Success order -> pPrint $ encode order
-
 
 data ERR = Error1 | Error2 deriving (Show)
 instance Exception ERR

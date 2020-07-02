@@ -39,6 +39,7 @@ dependencies:
   - aeson-pretty
   - resourcet
   - containers
+  - uuid
 
 default-extensions:
   - OverloadedStrings
