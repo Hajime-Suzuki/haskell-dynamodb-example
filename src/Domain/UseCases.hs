@@ -15,6 +15,7 @@ import           Control.Exception
 import           Control.Monad.Except
 import           Data.Aeson.Encode.Pretty       ( encodePretty )
 import           Domain.Types
+import           App
 
 createOrderUseCase :: CreateOrderPayload -> UseCase2 Order
 createOrderUseCase payload = do
@@ -31,5 +32,6 @@ getOrderUseCase = OrderRepo.getByOrderId
 getOrdersByUserIdUseCase :: Text -> UseCase2 [Order]
 getOrdersByUserIdUseCase = OrderRepo.getByUserId
 
-updateStatusUseCase :: Text -> UpdateStatusPayload -> UseCase2 Order
+updateStatusUseCase :: Text -> UpdateStatusPayload -> UseCase Order
 updateStatusUseCase = OrderRepo.updateStatus
+

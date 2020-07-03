@@ -16,7 +16,7 @@ import           Control.Monad.Catch
 import           Control.Monad.Except
 import           Control.Monad.Trans.AWS
 import           Control.Monad.Trans.Except
-
+import           Data.Aeson
 
 data Config
   = Config
@@ -27,12 +27,14 @@ data Config
 
 makeLenses ''Config
 
-newtype UseCase a = UseCase {
-  unUseCase ::  ReaderT Config (ExceptT String IO) a -- TODO: type exception
-} deriving (Functor, Applicative, Monad, MonadIO, MonadReader Config,MonadCatch, MonadThrow, MonadError String) -- TODO: add MonadUnliftIO
+data CreateOrderError = InvalidUserId | InvalidAddress | InvalidEmail deriving(Show)
 
-runUseCase :: Config -> UseCase a -> IO (Either String a)
-runUseCase r = runExceptT . flip runReaderT r . unUseCase
+data AppError = AppError1 | AppError2 | ParsingRecordError deriving (Show, Generic)
+instance Exception AppError
+
+instance ToJSON AppError where
+  toJSON = genericToJSON defaultOptions
+
 
 
 

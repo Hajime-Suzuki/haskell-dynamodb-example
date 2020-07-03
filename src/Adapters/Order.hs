@@ -12,7 +12,7 @@ import           Text.Pretty.Simple
 import           Domain.Order
 import           Domain.Types
 import           Adapters.Types
-
+import           App
 getOrderAdapter :: Adapter () Value
 getOrderAdapter req = do
   config <- getConfig
@@ -36,13 +36,15 @@ getOrderByUserIdAdapter req = do
 updateStatusAdapter :: Adapter UpdateStatusPayload Value
 updateStatusAdapter req = do
   config <- getConfig
-
   let payload = fromJust $ req ^. requestBodyEmbedded
       orderId = fromMaybe (error "id not found")
                           (lookup "id" $ req ^. agprqPathParameters)
-  mayOrder <- runUseCase2 config $ updateStatusUseCase orderId payload
-  return $ responseOK & responseBodyEmbedded ?~ object
-    [("order", toJSON mayOrder)]
+  mayOrder <- runUseCase config $ updateStatusUseCase orderId payload
+  case mayOrder of
+    Left e -> return $ response 500 & responseBodyEmbedded ?~ object
+      [("error", toJSON e)]
+    Right order -> return $ responseOK & responseBodyEmbedded ?~ object
+      [("order", toJSON order)]
 
 
 createOrderAdapter :: Adapter CreateOrderPayload Value

@@ -36,8 +36,6 @@ instance ToJSON Email where
 
 makeLenses ''Order
 
-data CreateOrderError = InvalidUserId | InvalidAddress | InvalidEmail deriving(Show)
-
 data CreateOrderPayload
   = CreateOrderPayload
       { _createOrderUserId  :: Text
