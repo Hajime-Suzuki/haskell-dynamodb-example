@@ -10,6 +10,7 @@ import           Domain.Order
 import           Control.Lens
 import           Control.Monad.Catch
 import           Domain.Types
+import           Control.Monad.Except
 
 data UpdateInput
   = UpdateInput
@@ -22,5 +23,11 @@ makeLenses ''UpdateInput
 
 defaultUpdateOrderInput = UpdateInput Nothing Nothing Nothing
 
-type Repository' a = ReaderT Config IO a
-type Repository m = (MonadReader Config m, MonadUnliftIO m, MonadCatch m)
+type Repository m
+  = ( Monad m
+    , MonadReader Config m
+    , MonadUnliftIO m
+    , MonadCatch m
+    , MonadError AppError m
+    )
+

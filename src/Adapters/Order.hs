@@ -13,22 +13,32 @@ import           Domain.Order
 import           Domain.Types
 import           Adapters.Types
 import           App
+
+
 getOrderAdapter :: Adapter () Value
 getOrderAdapter req = do
   config <- getConfig
   let orderId = fromMaybe (error "id not found")
                           (lookup "id" $ req ^. agprqPathParameters)
-  mayOrder <- runUseCase2 config (getOrderUseCase orderId)
+  mayOrder <- runUseCase config (getOrderUseCase orderId)
   let resBody = object [("order", toJSON mayOrder)]
   return $ responseOK & responseBodyEmbedded ?~ resBody
 
+createOrderAdapter :: Adapter CreateOrderPayload Value
+createOrderAdapter req = do
+  config <- getConfig
+
+  let payload = fromJust $ req ^. requestBodyEmbedded -- TODO: add exception
+
+  order <- runUseCase config $ createOrderUseCase payload
+  return $ responseOK & responseBodyEmbedded ?~ object [("order", toJSON order)]
 
 getOrderByUserIdAdapter :: Adapter () Value
 getOrderByUserIdAdapter req = do
   config <- getConfig
   let userId = fromMaybe (error "id not found")
                          (lookup "id" $ req ^. agprqPathParameters)
-  mayOrder <- runUseCase2 config (getOrdersByUserIdUseCase userId)
+  mayOrder <- runUseCase config (getOrdersByUserIdUseCase userId)
   let resBody = object [("orders", toJSON mayOrder)]
   return $ responseOK & responseBodyEmbedded ?~ resBody
 
@@ -46,13 +56,4 @@ updateStatusAdapter req = do
     Right order -> return $ responseOK & responseBodyEmbedded ?~ object
       [("order", toJSON order)]
 
-
-createOrderAdapter :: Adapter CreateOrderPayload Value
-createOrderAdapter req = do
-  config <- getConfig
-
-  let payload = fromJust $ req ^. requestBodyEmbedded -- TODO: add exception
-
-  order <- runUseCase2 config $ createOrderUseCase payload
-  return $ responseOK & responseBodyEmbedded ?~ object [("order", toJSON order)]
 

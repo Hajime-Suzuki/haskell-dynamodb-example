@@ -77,7 +77,6 @@ getByUserId userId = do
   keyCondition = dbUserIdField <> "= :userId"
   values       = mapFromList [(":userId", attrSJust $ fromUserId userId)]
 
-
 updateStatus :: Repository m => Text -> UpdateStatusPayload -> m Order
 updateStatus orderId payload = updateOrder
   orderId
@@ -87,9 +86,8 @@ updateOrder :: Repository m => Text -> [(Text, AttributeValue)] -> m Order
 updateOrder orderId fieldValues = do
   res <- handleReq =<< req
   let mayOrder = fromDB $ res ^. uirsAttributes
-  case mayOrder of
-    Nothing    -> throwString "something wrong with data in DB. could not parse"
-    Just order -> return order
+  maybe (throwError ParsingRecordError) return mayOrder
+
  where
   req = do
     tableName <- asks (^. configTableName)
@@ -110,7 +108,7 @@ updateOrder orderId fieldValues = do
   expression       = "SET " <> intercalate ", " exp
   expressionName   = mapFromList expNames
   expressionValues = mapFromList expValues
-  exp = ((\(key, _) -> "#" <> key <> " = :" <> key) <$> fieldValues)
+  exp              = (\(key, _) -> "#" <> key <> " = :" <> key) <$> fieldValues
   expNames         = (\(key, _) -> ("#" <> key, key)) <$> fieldValues
   expValues        = (\(key, val) -> (":" <> key, val)) <$> fieldValues
 

@@ -17,7 +17,14 @@ import           Data.Aeson.Encode.Pretty       ( encodePretty )
 import           Domain.Types
 import           App
 
-createOrderUseCase :: CreateOrderPayload -> UseCase2 Order
+
+getOrderUseCase :: Text -> UseCase (Maybe Order)
+getOrderUseCase = OrderRepo.getByOrderId
+
+getOrdersByUserIdUseCase :: Text -> UseCase [Order]
+getOrdersByUserIdUseCase = OrderRepo.getByUserId
+
+createOrderUseCase :: CreateOrderPayload -> UseCase Order
 createOrderUseCase payload = do
   newOrder <- liftIO $ mkOrder payload
   case newOrder of
@@ -25,12 +32,6 @@ createOrderUseCase payload = do
     Success order -> do
       res <- OrderRepo.save order
       return order
-
-getOrderUseCase :: Text -> UseCase2 (Maybe Order)
-getOrderUseCase = OrderRepo.getByOrderId
-
-getOrdersByUserIdUseCase :: Text -> UseCase2 [Order]
-getOrdersByUserIdUseCase = OrderRepo.getByUserId
 
 updateStatusUseCase :: Text -> UpdateStatusPayload -> UseCase Order
 updateStatusUseCase = OrderRepo.updateStatus
