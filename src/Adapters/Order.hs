@@ -13,6 +13,7 @@ import           Domain.Order
 import           Domain.Types
 import           Adapters.Types
 import           App
+import           Data.Aeson.Embedded
 
 
 getOrderAdapter :: Adapter () Value
@@ -21,8 +22,7 @@ getOrderAdapter req = do
   let orderId = fromMaybe (error "id not found")
                           (lookup "id" $ req ^. agprqPathParameters)
   mayOrder <- runUseCase config (getOrderUseCase orderId)
-  let resBody = object [("order", toJSON mayOrder)]
-  return $ responseOK & responseBodyEmbedded ?~ resBody
+  handleResponse "order" mayOrder
 
 createOrderAdapter :: Adapter CreateOrderPayload Value
 createOrderAdapter req = do
@@ -31,17 +31,15 @@ createOrderAdapter req = do
   let payload = fromJust $ req ^. requestBodyEmbedded -- TODO: add exception
 
   order <- runUseCase config $ createOrderUseCase payload
-  return $ responseOK & responseBodyEmbedded ?~ object [("order", toJSON order)]
+  handleResponse "order" order
 
 getOrderByUserIdAdapter :: Adapter () Value
 getOrderByUserIdAdapter req = do
   config <- getConfig
   let userId = fromMaybe (error "id not found")
                          (lookup "id" $ req ^. agprqPathParameters)
-  mayOrder <- runUseCase config (getOrdersByUserIdUseCase userId)
-  let resBody = object [("orders", toJSON mayOrder)]
-  return $ responseOK & responseBodyEmbedded ?~ resBody
-
+  mayOrders <- runUseCase config (getOrdersByUserIdUseCase userId)
+  handleResponse "orders" mayOrders
 
 updateStatusAdapter :: Adapter UpdateStatusPayload Value
 updateStatusAdapter req = do
@@ -50,10 +48,19 @@ updateStatusAdapter req = do
       orderId = fromMaybe (error "id not found")
                           (lookup "id" $ req ^. agprqPathParameters)
   mayOrder <- runUseCase config $ updateStatusUseCase orderId payload
-  case mayOrder of
-    Left e -> return $ response 500 & responseBodyEmbedded ?~ object
-      [("error", toJSON e)]
-    Right order -> return $ responseOK & responseBodyEmbedded ?~ object
-      [("order", toJSON order)]
+  handleResponse "order" mayOrder
+
+
+
+handleResponse
+  :: (ToJSON a, ToJSON e)
+  => Text
+  -> Either e a
+  -> IO (APIGatewayProxyResponse (Embedded Value))
+
+handleResponse _ (Left e) =
+  return $ response 500 & responseBodyEmbedded ?~ object [("error", toJSON e)]
+handleResponse key (Right val) =
+  return $ response 500 & responseBodyEmbedded ?~ object [(key, toJSON val)]
 
 

@@ -57,3 +57,4 @@ plugins:
   - serverless-dynamodb-local
   - serverless-haskell
   - serverless-offline
+  - serverless-pseudo-parameters
