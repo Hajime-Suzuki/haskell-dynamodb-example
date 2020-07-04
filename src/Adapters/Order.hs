@@ -2,6 +2,7 @@ module Adapters.Order where
 
 import           ClassyPrelude
 import           Control.Lens
+import           Control.Exception              ( throw )
 import           Config
 import           Types
 import           Domain.UseCases
@@ -42,7 +43,7 @@ getOrderByUserIdAdapter req = do
   handleResponse "orders" mayOrders
 
 updateStatusAdapter :: Adapter UpdateStatusPayload Value
-updateStatusAdapter req = do
+updateStatusAdapter req = errorHandler $ do
   config <- getConfig
   let payload = fromJust $ req ^. requestBodyEmbedded
       orderId = fromMaybe (error "id not found")
@@ -50,17 +51,24 @@ updateStatusAdapter req = do
   mayOrder <- runUseCase config $ updateStatusUseCase orderId payload
   handleResponse "order" mayOrder
 
-
-
 handleResponse
-  :: (ToJSON a, ToJSON e)
+  :: (ToJSON a, ToJSON e, Exception e)
   => Text
   -> Either e a
   -> IO (APIGatewayProxyResponse (Embedded Value))
 
-handleResponse _ (Left e) =
-  return $ response 500 & responseBodyEmbedded ?~ object [("error", toJSON e)]
+handleResponse _ (Left e) = return $ throw e
 handleResponse key (Right val) =
   return $ response 500 & responseBodyEmbedded ?~ object [(key, toJSON val)]
 
-
+errorHandler
+  :: (MonadUnliftIO m)
+  => m (APIGatewayProxyResponse (Embedded Value))
+  -> m (APIGatewayProxyResponse (Embedded Value))
+errorHandler = flip
+  catchAny
+  (\e -> do
+    print e
+    return $ response 500 & responseBodyEmbedded ?~ object
+      [("error", toJSON $ tshow e)]
+  )
